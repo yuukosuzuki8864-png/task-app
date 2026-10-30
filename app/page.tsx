@@ -1,36 +1,39 @@
-import Link from 'next/link'
-import styles from './page.module.css'
+import { AnimatedCard } from "./components/AnimatedCard"
 
-export default function DashboardPage() {
+
+export default function HomePage() {
   return (
-    <div>
-      <section className={styles.hero}>
-        <h2 className={styles.heroTitle}>ダッシュボード</h2>
-        <p className={styles.heroText}>
-          タスクの概要を確認し、作業を管理しましょう。
+    <div className="min-h-screen bg-gray-50">
+      {/* ヒーロー：カスタムカラーを使用 */}
+      <section className="bg-brand-900 text-white text-center px-4 py-16 md:py-24">
+        <h2 className="text-2xl md:text-4xl font-bold mb-4">
+          ダッシュボード
+        </h2>
+        <p className="text-brand-100 text-sm md:text-base max-w-xl mx-auto mb-6">
+          タスクを効率的に管理して、チームの生産性を向上させましょう。
         </p>
-        <Link href="/tasks/new" className={styles.heroButton}>
-          新しいタスクを作成
-        </Link>
       </section>
 
-      <section className={styles.sections}>
-        <div className={styles.card}>
-          <h3>未着手</h3>
-          <p>まだ着手していないタスク</p>
-          <Link href="/tasks?status=todo" className={styles.cardLink}>一覧を見る →</Link>
-        </div>
+      {/* サービスカード */}
+      <section className="max-w-4xl mx-auto px-4 py-12">
+        <h2 className="text-xl md:text-2xl font-bold text-center mb-8">
+          タスク概要
+        </h2>
+        <div className="flex flex-col md:flex-row gap-6">
+          
 
-        <div className={styles.card}>
-          <h3>進行中</h3>
-          <p>現在取り組んでいるタスク</p>
-          <Link href="/tasks?status=in_progress" className={styles.cardLink}>一覧を見る →</Link>
-        </div>
+            <AnimatedCard
+            title="Web開発"
+            description="React・Next.jsを活用した高品質なWebアプリケーション開発"/>
+            
 
-        <div className={styles.card}>
-          <h3>完了</h3>
-          <p>完了したタスク</p>
-          <Link href="/tasks?status=done" className={styles.cardLink}>一覧を見る →</Link>
+            <AnimatedCard 
+            title="コンサルティング"
+            description="ビジネス課題を分析し、最適なIT戦略をご提案"/>
+            
+            <AnimatedCard 
+            title="インフラ構築"
+            description="クラウドサービスを活用したスケーラブルなインフラ構築"/>
         </div>
       </section>
     </div>
