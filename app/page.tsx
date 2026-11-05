@@ -1,8 +1,13 @@
-export default function DashboardPage(){
-  return(
-    <div>
-      <h2>ダッシュボード</h2>
-      <p>タスク管理アプリへようこそ。ここではタスクの概要を確認できます。</p>
-    </div>
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+
+export default function HomePage() {
+  return (
+    <main className="p-8">
+      <h1 className="text-2xl font-bold mb-4">トップページ</h1>
+      <Link href="/tasks">
+        <Button>新しいタスクを作成</Button>
+      </Link>
+    </main>
   )
 }

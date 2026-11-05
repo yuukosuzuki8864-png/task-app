@@ -9,7 +9,6 @@ export const Header=()=>{
             </Link>
             <nav className={styles.nav}>
                 <Link href="/tasks" className={styles.navLink}>タスク一覧</Link>
-                <Link href="/tasks/new" className={styles.navLink}>タスク作成</Link>
                 <Link href="/settings" className={styles.navLink}>設定</Link>
             </nav>
         </header>

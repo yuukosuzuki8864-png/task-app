@@ -1,35 +1,37 @@
-export default function TasksPage(){
-    return(
-        <div>
-            <h2>タスク一覧</h2>
-            <p>登録されているタスクの一覧を表示します。</p>
+// app/tasks/page.tsx
+import { connection } from 'next/server'
+import {
+  CreateTaskDialog,
+} from '@/components/tasks/create-task-dialog'
+import { getTasks } from '@/lib/tasks'
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>タスク名</th>
-                        <th>ステータス</th>
-                        <th>期限</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>ランディングページのデザイン</td>
-                        <td>進行中</td>
-                        <td>2026-04-15</td>
-                    </tr>
-                    <tr>
-                        <td>API エンドポイントの実装</td>
-                        <td>未着手</td>
-                        <td>2026-04-20</td>
-                    </tr>
-                    <tr>
-                        <td>テスト作成</td>
-                        <td>完了</td>
-                        <td>2026-04-10</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    )
+export default async function TasksPage() {
+  // 作り置きせず、リクエストのたびにデータベースを読む
+  await connection()
+  const tasks = await getTasks()
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-6 p-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">タスク一覧</h1>
+        <CreateTaskDialog />
+      </div>
+      {tasks.length === 0 ? (
+        <p className="text-muted-foreground">
+          タスクはまだありません
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {tasks.map((task) => (
+            <li
+              key={task.id}
+              className="rounded-md border p-3"
+            >
+              {task.title}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
 }

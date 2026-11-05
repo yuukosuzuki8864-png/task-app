@@ -1,0 +1,25 @@
+// prisma/schema.prisma（ファイルを丸ごと置き換え）
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// タスクの状態は3つだけ
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
