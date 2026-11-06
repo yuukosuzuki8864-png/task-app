@@ -3,6 +3,7 @@ import { connection } from 'next/server'
 import {
   CreateTaskDialog,
 } from '@/components/tasks/create-task-dialog'
+import { TaskTable } from '@/components/tasks/task-table'
 import { getTasks } from '@/lib/tasks'
 
 export default async function TasksPage() {
@@ -21,16 +22,7 @@ export default async function TasksPage() {
           タスクはまだありません
         </p>
       ) : (
-        <ul className="space-y-2">
-          {tasks.map((task) => (
-            <li
-              key={task.id}
-              className="rounded-md border p-3"
-            >
-              {task.title}
-            </li>
-          ))}
-        </ul>
+        <TaskTable tasks={tasks} />
       )}
     </div>
   )
