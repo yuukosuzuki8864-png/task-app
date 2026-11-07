@@ -1,6 +1,6 @@
 // app/api/tasks/[id]/route.ts
 import { NextResponse, type NextRequest } from 'next/server'
-import { TaskStatus } from '@/generated/prisma/client'
+import { Prisma, TaskStatus } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getTask } from '@/lib/tasks'
 
@@ -68,25 +68,68 @@ export async function PATCH(
     data.status = body.status
   }
 
-  const task = await prisma.task.update({
-    where: { id },
-    data,
-  })
-
-  return NextResponse.json(task)
+  try {
+    const task = await prisma.task.update({
+      where: { id },
+      data,
+    })
+    return NextResponse.json(task)
+  } catch (error) {
+    // 対象が見つからない（P2025）なら 404
+    if (
+      error instanceof
+        Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2025'
+    ) {
+      return NextResponse.json(
+        { error: 'タスクが見つかりません' },
+        { status: 404 },
+      )
+    }
+    // それ以外は想定外のエラーなので、ログに残して 500
+    console.error('タスクの更新に失敗しました:', error)
+    return NextResponse.json(
+      {
+        error:
+          'タスクを更新できませんでした。時間をおいて試してください',
+      },
+      { status: 500 },
+    )
+  }
 }
 
-// app/api/tasks/[id]/route.ts（ファイルの最後に追加）
 export async function DELETE(
-    _request: NextRequest,
-    { params }: Params,
-  ) {
-    const { id } = await params
-  
+  _request: NextRequest,
+  { params }: Params,
+) {
+  const { id } = await params
+
+  try {
     await prisma.task.delete({
       where: { id },
     })
-  
     // 削除できた。返す本文がないので 204 を返す
     return new NextResponse(null, { status: 204 })
+  } catch (error) {
+    // 対象が見つからない（P2025）なら 404
+    if (
+      error instanceof
+        Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2025'
+    ) {
+      return NextResponse.json(
+        { error: 'タスクが見つかりません' },
+        { status: 404 },
+      )
+    }
+    // それ以外は想定外のエラーなので、ログに残して 500
+    console.error('タスクの削除に失敗しました:', error)
+    return NextResponse.json(
+      {
+        error:
+          'タスクを削除できませんでした。時間をおいて試してください',
+      },
+      { status: 500 },
+    )
   }
+}

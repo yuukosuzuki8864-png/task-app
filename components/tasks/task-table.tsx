@@ -2,6 +2,9 @@
 import Link from 'next/link'
 import type { Task } from '@/generated/prisma/client'
 import {
+  DeleteTaskButton,
+} from '@/components/tasks/delete-task-button'
+import {
   EditTaskDialog,
 } from '@/components/tasks/edit-task-dialog'
 import {
@@ -51,7 +54,10 @@ export function TaskTable({ tasks }: Props) {
             <TableCell>
               <div className="flex justify-end gap-2">
                 <EditTaskDialog task={task} />
-                {/* 次のチュートリアルで削除ボタンを置く */}
+                <DeleteTaskButton
+                  taskId={task.id}
+                  taskTitle={task.title}
+                />
               </div>
             </TableCell>
           </TableRow>
