@@ -1,5 +1,7 @@
+ 
 // app/api/tasks/route.ts
 import { NextResponse, type NextRequest } from 'next/server'
+import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getTasks } from '@/lib/tasks'
 
@@ -35,11 +37,33 @@ export async function POST(request: NextRequest) {
 
   try {
     const task = await prisma.task.create({
-      data: { title: body.title },
+      data: {
+        title: body.title,
+        status: 'TODO',
+      },
     })
-    return NextResponse.json(task, { status: 201 })
+
+    return NextResponse.json(
+      {
+        ...task,
+        id: task.id.toString(),
+        categoryId: task.categoryId?.toString() ?? null,
+      },
+      { status: 201 },
+    )
   } catch (error) {
     console.error('タスクの作成に失敗しました:', error)
+
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2025'
+    ) {
+      return NextResponse.json(
+        { error: 'タスクが見つかりません' },
+        { status: 404 },
+      )
+    }
+
     return NextResponse.json(
       {
         error:

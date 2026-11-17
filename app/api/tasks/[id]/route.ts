@@ -23,15 +23,22 @@ export async function GET(
     )
   }
 
-  return NextResponse.json(task)
+   
+return NextResponse.json({
+  ...task,
+  id: task.id.toString(),
+  categoryId: task.categoryId?.toString() ?? null,
+})
 }
 
-export async function PATCH(
+  export async function PATCH(
   request: NextRequest,
   { params }: Params,
 ) {
   const { id } = await params
   const body = await request.json().catch(() => null)
+  console.log("PATCH task id:", id)
+  console.log("request body:", body)
 
   if (!body) {
     return NextResponse.json(
@@ -69,11 +76,17 @@ export async function PATCH(
   }
 
   try {
-    const task = await prisma.task.update({
-      where: { id },
-      data,
-    })
-    return NextResponse.json(task)
+    
+const task = await prisma.task.update({
+  where: { id: BigInt(id) },
+  data,
+})
+
+return NextResponse.json({
+  ...task,
+  id: task.id.toString(),
+  categoryId: task.categoryId?.toString() ?? null,
+})
   } catch (error) {
     // 対象が見つからない（P2025）なら 404
     if (
@@ -106,7 +119,7 @@ export async function DELETE(
 
   try {
     await prisma.task.delete({
-      where: { id },
+      where: { id : BigInt(id)},
     })
     // 削除できた。返す本文がないので 204 を返す
     return new NextResponse(null, { status: 204 })

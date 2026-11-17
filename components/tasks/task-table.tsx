@@ -47,7 +47,7 @@ export function TaskTable({ tasks }: Props) {
               {taskStatusLabels[task.status]}
             </TableCell>
             <TableCell>
-              {task.createdAt.toLocaleDateString('ja-JP', {
+              {task.insertedAt.toLocaleDateString('ja-JP', {
                 timeZone: 'Asia/Tokyo',
               })}
             </TableCell>

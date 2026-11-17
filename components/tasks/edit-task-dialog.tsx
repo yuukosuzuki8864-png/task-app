@@ -110,7 +110,8 @@ export function EditTaskDialog({ task }: Props) {
             >
               キャンセル
             </Button>
-            <Button type="submit" disabled={title.trim() === ''}>
+       
+<Button type="submit" disabled={(title ?? "").trim() === ""}>
               保存
             </Button>
           </DialogFooter>

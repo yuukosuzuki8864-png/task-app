@@ -16,16 +16,19 @@ enum TaskStatus {
 }
 
 
+ 
 model Task {
-  id          BigInt   @id @default(autoincrement())
-  task        String
-  isComplete  Boolean  @map("is_complete")
-  userId      String?  @map("user_id")
-  insertedAt  DateTime @map("inserted_at")
-  categoryId  BigInt?  @map("category_id")
+  id         BigInt     @id @default(autoincrement())
+  title      String
+  status     TaskStatus
+  userId     String?    @map("user_id")
+  insertedAt DateTime   @map("inserted_at") @default(now())
+  categoryId BigInt?    @map("category_id")
 
   @@map("todos")
 }
+
+
 
 model Category {
   id    BigInt @id @default(autoincrement())

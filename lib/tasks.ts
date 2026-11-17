@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 // タスクの一覧を、新しく作った順に取得する
 export async function getTasks() {
   return prisma.task.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: { insertedAt: 'desc' },
   })
 }
 
