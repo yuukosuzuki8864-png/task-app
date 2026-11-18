@@ -5,6 +5,8 @@ import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getTasks } from '@/lib/tasks'
 
+//POST新規作成（create-task-dialog.tsx対応のroute.ts）
+
 export async function GET() {
   const tasks = await getTasks()
   return NextResponse.json(tasks)

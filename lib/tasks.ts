@@ -11,6 +11,6 @@ export async function getTasks() {
 // id でタスクを1件探す。見つからなければ null を返す
 export async function getTask(id: string) {
   return prisma.task.findUnique({
-    where: { id },
+    where: { id: BigInt(id)},
   })
 }

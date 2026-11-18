@@ -4,6 +4,8 @@ import { Prisma, TaskStatus } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getTask } from '@/lib/tasks'
 
+//PATCH,DELETの既存データ編集削除（なので[id]内のフォルダ）(edit-task-dialog.tsx,delete-task-button.tsx対応のroute.ts)
+
 // 2つ目の引数の型。params は Promise で渡される
 type Params = {
   params: Promise<{ id: string }>
