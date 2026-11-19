@@ -8,6 +8,7 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL
+  console.log('DB接続ユーザー:', new URL(connectionString ?? '').username)
   if (!connectionString) {
     throw new Error(
       'DATABASE_URL が .env に設定されていません',
