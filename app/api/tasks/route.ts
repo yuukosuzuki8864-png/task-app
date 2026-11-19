@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getTasks } from '@/lib/tasks'
-
+import { getCurrentUser } from '@/lib/auth'
 //POST新規作成（create-task-dialog.tsx対応のroute.ts）
 
 export async function GET() {
@@ -17,6 +17,14 @@ type CreateTaskBody = {
 }
 
 export async function POST(request: NextRequest) {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json(
+      { error: 'ログインしてください' },
+      { status: 401 },
+    )
+  }
+
   const body = (await request.json().catch(() => null)) as
     CreateTaskBody | null
 
@@ -40,8 +48,10 @@ export async function POST(request: NextRequest) {
   try {
     const task = await prisma.task.create({
       data: {
-        title: body.title,
-        status: 'TODO',
+        title: result.data.title,
+        // 説明が空のときは null（説明なし）として保存する
+        description: result.data.description || null,
+        userId: user.id,
       },
     })
 
@@ -55,7 +65,6 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     console.error('タスクの作成に失敗しました:', error)
-
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === 'P2025'

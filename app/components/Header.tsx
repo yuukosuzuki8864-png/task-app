@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import styles from './Header.module.css'
+import { UserMenu } from './UserMenu';
 
 export const Header=()=>{
     return(
@@ -11,6 +12,7 @@ export const Header=()=>{
                 <Link href="/tasks" className={styles.navLink}>タスク一覧</Link>
                 <Link href="/settings" className={styles.navLink}>設定</Link>
             </nav>
+            <UserMenu />
         </header>
     )
 }

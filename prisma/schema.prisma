@@ -14,20 +14,18 @@ enum TaskStatus {
   IN_PROGRESS
   DONE
 }
-
-
  
 model Task {
-  id         BigInt     @id @default(autoincrement())
-  title      String
-  status     TaskStatus
-  userId     String?    @map("user_id")
-  insertedAt DateTime   @map("inserted_at") @default(now())
-  categoryId BigInt?    @map("category_id")
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  userId      String   @map("user_id")
+  insertedAt  DateTime @map("inserted_at") @default(now())
+  categoryId  Int?     @map("category_id")
 
-  @@map("todos")
+  @@index([userId])
 }
-
 
 
 model Category {
