@@ -5,10 +5,20 @@ import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getTasks } from '@/lib/tasks'
 import { getCurrentUser } from '@/lib/auth'
+import { createTaskSchema } from '@/lib/validations/task'
 //POST新規作成（create-task-dialog.tsx対応のroute.ts）
 
+// app/api/tasks/route.ts（GET 関数を置き換える）
 export async function GET() {
-  const tasks = await getTasks()
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json(
+      { error: 'ログインしてください' },
+      { status: 401 },
+    )
+  }
+
+  const tasks = await getTasks(user.id)
   return NextResponse.json(tasks)
 }
 
@@ -35,12 +45,10 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  if (
-    typeof body.title !== 'string' ||
-    body.title.trim() === ''
-  ) {
+  const result = createTaskSchema.safeParse(body)
+  if (!result.success) {
     return NextResponse.json(
-      { error: 'タイトルを入力してください' },
+      { error: result.error.issues[0].message },
       { status: 400 },
     )
   }
@@ -55,26 +63,9 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(
-      {
-        ...task,
-        id: task.id.toString(),
-        categoryId: task.categoryId?.toString() ?? null,
-      },
-      { status: 201 },
-    )
+    return NextResponse.json(task, { status: 201 })
   } catch (error) {
     console.error('タスクの作成に失敗しました:', error)
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P2025'
-    ) {
-      return NextResponse.json(
-        { error: 'タスクが見つかりません' },
-        { status: 404 },
-      )
-    }
-
     return NextResponse.json(
       {
         error:

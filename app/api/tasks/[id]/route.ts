@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { Prisma, TaskStatus } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getTask } from '@/lib/tasks'
+import { getCurrentUser } from '@/lib/auth'
 
 //PATCH,DELETの既存データ編集削除（なので[id]内のフォルダ）(edit-task-dialog.tsx,delete-task-button.tsx対応のroute.ts)
 
@@ -15,8 +16,16 @@ export async function GET(
   _request: NextRequest,
   { params }: Params,
 ) {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json(
+      { error: 'ログインしてください' },
+      { status: 401 },
+    )
+  }
+
   const { id } = await params
-  const task = await getTask(id)
+  const task = await getTask(Number(id), user.id)
 
   if (!task) {
     return NextResponse.json(
@@ -25,12 +34,11 @@ export async function GET(
     )
   }
 
-   
-return NextResponse.json({
-  ...task,
-  id: task.id.toString(),
-  categoryId: task.categoryId?.toString() ?? null,
-})
+  return NextResponse.json({
+    ...task,
+    id: task.id.toString(),
+    categoryId: task.categoryId?.toString() ?? null,
+  })
 }
 
   export async function PATCH(
@@ -39,8 +47,6 @@ return NextResponse.json({
 ) {
   const { id } = await params
   const body = await request.json().catch(() => null)
-  console.log("PATCH task id:", id)
-  console.log("request body:", body)
 
   if (!body) {
     return NextResponse.json(
@@ -80,7 +86,7 @@ return NextResponse.json({
   try {
     
 const task = await prisma.task.update({
-  where: { id: BigInt(id) },
+  where: { id: Number(id) },
   data,
 })
 
@@ -118,11 +124,20 @@ export async function DELETE(
   { params }: Params,
 ) {
   const { id } = await params
+  const taskId = Number(id)
+
+if (Number.isNaN(taskId)) {
+  return NextResponse.json(
+    { error: 'IDが正しくありません' },
+    { status: 400 },
+  )
+}
 
   try {
     await prisma.task.delete({
-      where: { id : BigInt(id)},
+      where: { id: taskId },
     })
+    
     // 削除できた。返す本文がないので 204 を返す
     return new NextResponse(null, { status: 204 })
   } catch (error) {

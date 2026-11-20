@@ -1,6 +1,7 @@
 // app/tasks/[id]/page.tsx
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { getCurrentUser } from '@/lib/auth'
 import { taskStatusLabels } from '@/lib/task-status'
 import { getTask } from '@/lib/tasks'
 
@@ -11,10 +12,15 @@ type Props = {
 export default async function TaskDetailPage({
   params,
 }: Props) {
-  const { id } = await params
-  const task = await getTask(id)
+  const user = await getCurrentUser()
+  if (!user) {
+    return <p className="p-8">ログインしてください</p>
+  }
 
-  // 見つからなければ、404 のページを表示する
+  const { id } = await params
+  const task = await getTask(Number(id), user.id)
+
+  // 見つからないか、他人のタスクなら、404 のページを表示する
   if (!task) {
     notFound()
   }
@@ -38,7 +44,7 @@ export default async function TaskDetailPage({
         <dd>{task.description ?? 'なし'}</dd>
         <dt className="text-muted-foreground">作成日時</dt>
         <dd>
-          {task.createdAt.toLocaleString('ja-JP', {
+          {task.insertedAt.toLocaleString('ja-JP', {
             timeZone: 'Asia/Tokyo',
           })}
         </dd>
@@ -52,4 +58,3 @@ export default async function TaskDetailPage({
     </div>
   )
 }
-

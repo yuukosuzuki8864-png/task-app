@@ -1,15 +1,33 @@
 // app/tasks/page.tsx
-import { connection } from 'next/server'
+import { Suspense } from 'react'
 import {
   CreateTaskDialog,
 } from '@/components/tasks/create-task-dialog'
 import { TaskTable } from '@/components/tasks/task-table'
+import { TaskTableSkeleton} from '@/components/tasks/task-table-skeleton'
+import { getCurrentUser } from '@/lib/auth'
 import { getTasks } from '@/lib/tasks'
 
+// ログイン中のユーザーのタスクを取得して表を表示する部分
+async function TaskListSection({ userId }: { userId: string }) {
+  const tasks = await getTasks(userId)
+
+  if (tasks.length === 0) {
+    return (
+      <p className="text-muted-foreground">
+        タスクはまだありません
+      </p>
+    )
+  }
+
+  return <TaskTable tasks={tasks} />
+}
+
 export default async function TasksPage() {
-  // 作り置きせず、リクエストのたびにデータベースを読む
-  await connection()
-  const tasks = await getTasks()
+  const user = await getCurrentUser()
+  if (!user) {
+    return <p className="p-8">ログインしてください</p>
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-8">
@@ -17,13 +35,10 @@ export default async function TasksPage() {
         <h1 className="text-2xl font-bold">タスク一覧</h1>
         <CreateTaskDialog />
       </div>
-      {tasks.length === 0 ? (
-        <p className="text-muted-foreground">
-          タスクはまだありません
-        </p>
-      ) : (
-        <TaskTable tasks={tasks} />
-      )}
+
+      <Suspense fallback={<TaskTableSkeleton />}>
+        <TaskListSection userId={user.id} />
+      </Suspense>
     </div>
   )
 }
