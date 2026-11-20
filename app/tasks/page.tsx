@@ -1,5 +1,6 @@
-// app/tasks/page.tsx
+// app/tasks/page.tsx（ファイル全体を置き換える）
 import { Suspense } from 'react'
+import { connection } from 'next/server'
 import {
   CreateTaskDialog,
 } from '@/components/tasks/create-task-dialog'
@@ -7,12 +8,13 @@ import { TaskTable } from '@/components/tasks/task-table'
 import {
   TaskTableSkeleton,
 } from '@/components/tasks/task-table-skeleton'
-import { requireUser } from '@/lib/auth'
 import { getTasks } from '@/lib/tasks'
+import { requireUser } from '@/lib/auth'
 
-// ログイン中のユーザーのタスクを取得して表を表示する部分
-async function TaskListSection({ userId }: { userId: string }) {
-  const tasks = await getTasks(userId)
+// タスクを取得して表を表示する部分
+async function TaskListSection() {
+  const user = await requireUser()
+  const tasks = await getTasks(user.id)
 
   if (tasks.length === 0) {
     return (
@@ -26,7 +28,8 @@ async function TaskListSection({ userId }: { userId: string }) {
 }
 
 export default async function TasksPage() {
-  const user = await requireUser()
+  // 作り置きせず、リクエストのたびにデータベースを読む
+  await connection()
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-8">
@@ -36,7 +39,7 @@ export default async function TasksPage() {
       </div>
 
       <Suspense fallback={<TaskTableSkeleton />}>
-        <TaskListSection userId={user.id} />
+        <TaskListSection />
       </Suspense>
     </div>
   )
