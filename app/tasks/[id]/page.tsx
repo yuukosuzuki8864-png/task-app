@@ -1,4 +1,4 @@
-// app/tasks/[id]/page.tsx
+ 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
@@ -9,32 +9,29 @@ type Props = {
   params: Promise<{ id: string }>
 }
 
-export default async function TaskDetailPage({
-  params,
-}: Props) {
+export default async function TaskDetailPage({ params }: Props) {
   const user = await requireUser()
   const { id } = await params
-  const task = await getTask(Number(id), user.id)
 
-  // 見つからないか、他人のタスクなら、404 のページを表示する
+  const taskId = Number(id)
+  if (Number.isNaN(taskId)) {
+    notFound()
+  }
+
+  const task = await getTask(taskId, user.id)
+
   if (!task) {
     notFound()
   }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-8">
-      <Link
-        href="/tasks"
-        className="text-sm text-muted-foreground
-          hover:underline"
-      >
+      <Link href="/tasks" className="text-sm text-muted-foreground hover:underline">
         ← タスク一覧に戻る
       </Link>
       <h1 className="text-2xl font-bold">{task.title}</h1>
       <dl className="grid grid-cols-[8rem_1fr] gap-y-3">
-        <dt className="text-muted-foreground">
-          ステータス
-        </dt>
+        <dt className="text-muted-foreground">ステータス</dt>
         <dd>{taskStatusLabels[task.status]}</dd>
         <dt className="text-muted-foreground">説明</dt>
         <dd>{task.description ?? 'なし'}</dd>
@@ -46,11 +43,11 @@ export default async function TaskDetailPage({
         </dd>
         <dt className="text-muted-foreground">更新日時</dt>
         <dd>
-        {task.updatedAt
-    ? task.updatedAt.toLocaleString('ja-JP', {
-        timeZone: 'Asia/Tokyo',
-      })
-    : 'なし'}
+          {task.updatedAt
+            ? task.updatedAt.toLocaleString('ja-JP', {
+                timeZone: 'Asia/Tokyo',
+              })
+            : 'なし'}
         </dd>
       </dl>
     </div>
