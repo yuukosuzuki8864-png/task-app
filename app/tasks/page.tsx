@@ -4,8 +4,10 @@ import {
   CreateTaskDialog,
 } from '@/components/tasks/create-task-dialog'
 import { TaskTable } from '@/components/tasks/task-table'
-import { TaskTableSkeleton} from '@/components/tasks/task-table-skeleton'
-import { getCurrentUser } from '@/lib/auth'
+import {
+  TaskTableSkeleton,
+} from '@/components/tasks/task-table-skeleton'
+import { requireUser } from '@/lib/auth'
 import { getTasks } from '@/lib/tasks'
 
 // ログイン中のユーザーのタスクを取得して表を表示する部分
@@ -24,10 +26,7 @@ async function TaskListSection({ userId }: { userId: string }) {
 }
 
 export default async function TasksPage() {
-  const user = await getCurrentUser()
-  if (!user) {
-    return <p className="p-8">ログインしてください</p>
-  }
+  const user = await requireUser()
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-8">

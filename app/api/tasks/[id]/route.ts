@@ -1,11 +1,9 @@
 // app/api/tasks/[id]/route.ts
 import { NextResponse, type NextRequest } from 'next/server'
-import { Prisma, TaskStatus } from '@/generated/prisma/client'
+import { TaskStatus } from '@/generated/prisma/client'
 import { prisma } from '@/lib/prisma'
-import { getTask } from '@/lib/tasks'
 import { getCurrentUser } from '@/lib/auth'
-
-//PATCH,DELETの既存データ編集削除（なので[id]内のフォルダ）(edit-task-dialog.tsx,delete-task-button.tsx対応のroute.ts)
+import { getTask } from '@/lib/tasks'
 
 // 2つ目の引数の型。params は Promise で渡される
 type Params = {
@@ -34,17 +32,21 @@ export async function GET(
     )
   }
 
-  return NextResponse.json({
-    ...task,
-    id: task.id.toString(),
-    categoryId: task.categoryId?.toString() ?? null,
-  })
+  return NextResponse.json(task)
 }
 
-  export async function PATCH(
+export async function PATCH(
   request: NextRequest,
   { params }: Params,
 ) {
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json(
+      { error: 'ログインしてください' },
+      { status: 401 },
+    )
+  }
+
   const { id } = await params
   const body = await request.json().catch(() => null)
 
@@ -84,30 +86,23 @@ export async function GET(
   }
 
   try {
-    
-const task = await prisma.task.update({
-  where: { id: Number(id) },
-  data,
-})
+    // id と userId の両方が一致する行だけを更新する
+    const result = await prisma.task.updateMany({
+      where: { id: Number(id), userId: user.id },
+      data,
+    })
 
-return NextResponse.json({
-  ...task,
-  id: task.id.toString(),
-  categoryId: task.categoryId?.toString() ?? null,
-})
-  } catch (error) {
-    // 対象が見つからない（P2025）なら 404
-    if (
-      error instanceof
-        Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P2025'
-    ) {
+    // 1件も更新されなかった = 無いか、他人のタスク
+    if (result.count === 0) {
       return NextResponse.json(
         { error: 'タスクが見つかりません' },
         { status: 404 },
       )
     }
-    // それ以外は想定外のエラーなので、ログに残して 500
+
+    const task = await getTask(Number(id), user.id)
+    return NextResponse.json(task)
+  } catch (error) {
     console.error('タスクの更新に失敗しました:', error)
     return NextResponse.json(
       {
@@ -123,36 +118,32 @@ export async function DELETE(
   _request: NextRequest,
   { params }: Params,
 ) {
-  const { id } = await params
-  const taskId = Number(id)
+  const user = await getCurrentUser()
+  if (!user) {
+    return NextResponse.json(
+      { error: 'ログインしてください' },
+      { status: 401 },
+    )
+  }
 
-if (Number.isNaN(taskId)) {
-  return NextResponse.json(
-    { error: 'IDが正しくありません' },
-    { status: 400 },
-  )
-}
+  const { id } = await params
 
   try {
-    await prisma.task.delete({
-      where: { id: taskId },
+    // id と userId の両方が一致する行だけを削除する
+    const result = await prisma.task.deleteMany({
+      where: { id: Number(id), userId: user.id },
     })
-    
-    // 削除できた。返す本文がないので 204 を返す
-    return new NextResponse(null, { status: 204 })
-  } catch (error) {
-    // 対象が見つからない（P2025）なら 404
-    if (
-      error instanceof
-        Prisma.PrismaClientKnownRequestError &&
-      error.code === 'P2025'
-    ) {
+
+    if (result.count === 0) {
       return NextResponse.json(
         { error: 'タスクが見つかりません' },
         { status: 404 },
       )
     }
-    // それ以外は想定外のエラーなので、ログに残して 500
+
+    // 削除できた。返す本文がないので 204 を返す
+    return new NextResponse(null, { status: 204 })
+  } catch (error) {
     console.error('タスクの削除に失敗しました:', error)
     return NextResponse.json(
       {

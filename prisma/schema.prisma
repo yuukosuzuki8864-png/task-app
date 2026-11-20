@@ -22,7 +22,7 @@ model Task {
   status      TaskStatus @default(TODO)
   userId      String   @map("user_id")
   insertedAt  DateTime @map("inserted_at") @default(now())
-updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
+  updatedAt DateTime @updatedAt @default(now()) @map("updated_at")
   categoryId  Int?     @map("category_id")
 
   @@index([userId])

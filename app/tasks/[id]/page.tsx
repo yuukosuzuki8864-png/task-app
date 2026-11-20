@@ -1,7 +1,7 @@
 // app/tasks/[id]/page.tsx
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getCurrentUser } from '@/lib/auth'
+import { requireUser } from '@/lib/auth'
 import { taskStatusLabels } from '@/lib/task-status'
 import { getTask } from '@/lib/tasks'
 
@@ -12,11 +12,7 @@ type Props = {
 export default async function TaskDetailPage({
   params,
 }: Props) {
-  const user = await getCurrentUser()
-  if (!user) {
-    return <p className="p-8">ログインしてください</p>
-  }
-
+  const user = await requireUser()
   const { id } = await params
   const task = await getTask(Number(id), user.id)
 
@@ -50,9 +46,11 @@ export default async function TaskDetailPage({
         </dd>
         <dt className="text-muted-foreground">更新日時</dt>
         <dd>
-          {task.updatedAt.toLocaleString('ja-JP', {
-            timeZone: 'Asia/Tokyo',
-          })}
+        {task.updatedAt
+    ? task.updatedAt.toLocaleString('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+      })
+    : 'なし'}
         </dd>
       </dl>
     </div>
