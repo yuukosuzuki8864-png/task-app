@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 
 type Props = {
   taskId: string
@@ -33,13 +34,14 @@ export function DeleteTaskButton({
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}))
-      alert(data.error ?? '削除に失敗しました')
+      toast.error(data.error ?? '削除に失敗しました') // ★2
       return
     }
 
     router.refresh()
-  }
+    toast.success('タスクを削除しました') // ★3
 
+  }
   return (
     <Button
       variant="destructive"
@@ -50,4 +52,4 @@ export function DeleteTaskButton({
       {isDeleting ? '削除中...' : '削除'}
     </Button>
   )
-}
+  }

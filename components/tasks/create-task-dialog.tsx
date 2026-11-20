@@ -12,14 +12,19 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { toast } from 'sonner' // ★1
 
 export function CreateTaskDialog() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
+  const [error, setError] = useState<string | null>(null) // ★2
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault()
+    setError(null) // ★3
 
     const response = await fetch('/api/tasks', {
       method: 'POST',
@@ -28,15 +33,16 @@ export function CreateTaskDialog() {
     })
 
     if (!response.ok) {
-      // サーバーが返した { error } を読んで伝える
+      // サーバーが返した { error } をダイアログの中に出す
       const data = await response.json().catch(() => ({}))
-      alert(data.error ?? '追加に失敗しました')
+      setError(data.error ?? '追加に失敗しました') // ★4
       return
     }
 
     setTitle('')
     setOpen(false)
     router.refresh()
+    toast.success('タスクを作成しました') // ★5
   }
 
   return (
@@ -57,6 +63,9 @@ export function CreateTaskDialog() {
             onChange={(event) => setTitle(event.target.value)}
             placeholder="例: 買い物に行く"
           />
+          {error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
           <Button type="submit" disabled={title.trim() === ''}>
             追加
           </Button>
