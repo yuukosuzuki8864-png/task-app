@@ -55,7 +55,7 @@ export function TaskTable({ tasks }: Props) {
               <div className="flex justify-end gap-2">
                 <EditTaskDialog task={task} />
                 <DeleteTaskButton
-                  taskId={task.id}
+                  taskId={task.id.toString()}
                   taskTitle={task.title}
                 />
               </div>

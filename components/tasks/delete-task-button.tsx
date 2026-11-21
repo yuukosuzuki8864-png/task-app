@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 
 type Props = {
-  taskId: string
+  taskId: number
   taskTitle: string
 }
 
