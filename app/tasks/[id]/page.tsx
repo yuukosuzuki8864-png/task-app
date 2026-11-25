@@ -1,4 +1,4 @@
- 
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
@@ -7,6 +7,26 @@ import { getTask } from '@/lib/tasks'
 
 type Props = {
   params: Promise<{ id: string }>
+}
+
+// app/tasks/[id]/page.tsx（TaskDetailPageの上に足す）
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const user = await requireUser()
+  const { id } = await params
+  const task = await getTask(Number(id), user.id)
+
+  if (!task) {
+    return { title: 'タスクが見つかりません' }
+  }
+
+  return {
+    title: task.title,
+    description: task.description ?? 'タスクの詳細ページです',
+  }
 }
 
 export default async function TaskDetailPage({ params }: Props) {

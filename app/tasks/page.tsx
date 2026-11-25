@@ -1,4 +1,5 @@
 // app/tasks/page.tsx（ファイル全体を置き換える）
+import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { connection } from 'next/server'
 import {
@@ -11,6 +12,10 @@ import {
 import { getTasks } from '@/lib/tasks'
 import { requireUser } from '@/lib/auth'
 
+export const metadata: Metadata = {
+  title: 'タスク一覧',
+  description: '自分のタスクを一覧で確認できます',
+}
 // タスクを取得して表を表示する部分
 async function TaskListSection() {
   const user = await requireUser()
