@@ -2,7 +2,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -28,8 +27,28 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
-export function LoginForm() {
-  const router = useRouter()
+// app/login/login-form.tsx（LoginFormの上に足す）
+// 戻り先が、このアプリの中のURLかを確かめる
+function toSafeUrl(redirectTo: string) {
+  try {
+    // 今開いているサイトを土台に、URLを組み立てる
+    const url = new URL(redirectTo, window.location.origin)
+    // 同じサイトのURLのときだけ、戻り先に使う
+    if (url.origin === window.location.origin) {
+      return url.href
+    }
+  } catch {
+    // URLとして読めない値は使わない
+  }
+  return '/tasks'
+}
+
+export function LoginForm({
+  redirectTo,
+}: {
+  redirectTo: string
+}){
+ 
   const [serverError, setServerError] =
     useState<string | null>(null)
 
@@ -53,9 +72,7 @@ export function LoginForm() {
       )
       return
     }
-
-    router.push('/tasks')
-    router.refresh()
+    window.location.assign(toSafeUrl(redirectTo))
   }
 
   return (

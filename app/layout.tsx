@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children ,}: {children:React.ReactNode}) {
+export default function RootLayout({ children , modal,}: {children:React.ReactNode, modal:React.ReactNode}) {
   return (
     <html
       lang="ja" className={cn("font-sans", geist.variable)}>
@@ -33,6 +33,7 @@ export default function RootLayout({ children ,}: {children:React.ReactNode}) {
         <Header/>
         <main>{children}</main>
         <Footer/>
+        {modal}
         <Toaster richColors /> {/* ★2 */}
       </body>
     </html>

@@ -2,7 +2,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -35,7 +34,6 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>
 
 export function SignupForm() {
-  const router = useRouter()
   const [serverError, setServerError] =
     useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -73,8 +71,7 @@ export function SignupForm() {
       return
     }
 
-    router.push('/tasks')
-    router.refresh()
+    window.location.assign('/tasks')
   }
 
   return (
